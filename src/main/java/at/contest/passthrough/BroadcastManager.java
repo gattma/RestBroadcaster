@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.jboss.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -37,8 +38,12 @@ public class BroadcastManager extends HttpServlet {
                 .build();
     }
 
-    // TODO POST: https://stackoverflow.com/questions/8100634/get-the-post-request-body-from-httpservletrequest
+    @PostConstruct
+    public void logSetup() {
+        logger.info(config.toString());
+    }
 
+    // TODO POST: https://stackoverflow.com/questions/8100634/get-the-post-request-body-from-httpservletrequest
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
         if(logger.isTraceEnabled()) traceRequestInformation(req);
         if(req.getHeader("readResults") != null) {
