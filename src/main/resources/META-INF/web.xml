@@ -1,0 +1,13 @@
+<web-app>
+
+    <servlet>
+        <servlet-name>passthroughServlet</servlet-name>
+        <servlet-class>at.contest.passthrough.BroadcastManager</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>passthroughServlet</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+
+</web-app>
