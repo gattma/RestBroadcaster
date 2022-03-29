@@ -7,6 +7,7 @@ import javax.enterprise.context.ApplicationScoped;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,8 +21,9 @@ public class ResultAggregator {
         this.responses = new ArrayList<>();
     }
 
-    public void addResponse(String endpoint, String responseAsJson) {
+    public void addResponse(Long id, String endpoint, String responseAsJson) {
         responses.add(new Response(
+                id,
                 Response.Type.OK,
                 extractHost(endpoint),
                 extractSearchString(endpoint),
@@ -30,8 +32,9 @@ public class ResultAggregator {
         ));
     }
 
-    public void addError(String endpoint, String errorAsJson) {
+    public void addError(Long id, String endpoint, String errorAsJson) {
         responses.add(new Response(
+                id,
                 Response.Type.ERROR,
                 extractHost(endpoint),
                 extractSearchString(endpoint),
@@ -41,10 +44,12 @@ public class ResultAggregator {
     }
 
     public List<Response> getResponses() {
+        responses.sort(Comparator.comparing(x -> x.id));
         return responses;
     }
 
     public Map<String, List<Response>> getResponsesByHost() {
+        responses.sort(Comparator.comparing(x -> x.id));
         return responses
                 .stream()
                 .collect(Collectors.groupingBy(Response::getEndpoint));

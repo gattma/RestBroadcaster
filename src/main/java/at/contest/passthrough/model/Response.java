@@ -12,7 +12,8 @@ public class Response {
         OK, ERROR
     }
 
-    public Response(Type type, String endpoint, String searchString, LocalDateTime dateTime, String result) {
+    public Response(Long id, Type type, String endpoint, String searchString, LocalDateTime dateTime, String result) {
+        this.id = id;
         this.type = type;
         this.endpoint = endpoint;
         this.searchString = searchString;
@@ -21,12 +22,17 @@ public class Response {
         this.result = result;
     }
 
+    public Long id;
     public Type type;
     public String endpoint;
     public String searchString;
     public LocalDateTime dateTime;
     public String dateTimeString;
     public String result;
+
+    public Long getId() {
+        return id;
+    }
 
     public Type getType() {
         return type;

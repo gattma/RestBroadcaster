@@ -30,12 +30,15 @@ public class BroadcastManager extends HttpServlet {
 
     private final ObjectMapper mapper;
 
+    private Long currentId;
+
     public BroadcastManager() {
         executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
         mapper = JsonMapper.builder()
                 .addModule(new Jdk8Module())
                 .addModule(new JavaTimeModule())
                 .build();
+        currentId = 0L;
     }
 
     @PostConstruct
@@ -89,17 +92,18 @@ public class BroadcastManager extends HttpServlet {
     }
 
     private String call(String path, String method, String query) throws InterruptedException, ExecutionException {
+        currentId += 1;
         var leader = config.getLeader();
         logger.infof("Calling leader %s...", leader);
         var leaderResultFuture = executorService.submit(
-                new CallHttpEndpointWorker(String.format("%s%s?%s", leader, path, query), method, logger, resultAggregator)
+                new CallHttpEndpointWorker(currentId, String.format("%s%s?%s", leader, path, query), method, logger, resultAggregator)
         );
 
         // Broadcast
         config.getBroadcasts().forEach(broadcast -> {
             logger.infof("Calling %s...", broadcast);
             executorService.submit(
-                    new CallHttpEndpointWorker(String.format("%s%s?%s", broadcast, path, query), method, logger, resultAggregator)
+                    new CallHttpEndpointWorker(currentId, String.format("%s%s?%s", broadcast, path, query), method, logger, resultAggregator)
             );
         });
 

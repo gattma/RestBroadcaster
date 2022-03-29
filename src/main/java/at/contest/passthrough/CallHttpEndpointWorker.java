@@ -11,12 +11,14 @@ import java.util.concurrent.Callable;
 
 public class CallHttpEndpointWorker implements Callable<String> {
 
+    Long id;
     String endpoint;
     String method;
     Logger logger;
     ResultAggregator resultAggregator;
 
-    public CallHttpEndpointWorker(String endpoint, String method, Logger logger, ResultAggregator resultAggregator) {
+    public CallHttpEndpointWorker(Long id, String endpoint, String method, Logger logger, ResultAggregator resultAggregator) {
+        this.id = id;
         this.endpoint = endpoint;
         this.method = method;
         this.logger = logger;
@@ -37,7 +39,7 @@ public class CallHttpEndpointWorker implements Callable<String> {
             if(conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 result = IOUtils.toString(conn.getInputStream(), Charset.defaultCharset());
                 logger.debugf("Add new result for %s: %s", endpoint, result);
-                resultAggregator.addResponse(endpoint, result);
+                resultAggregator.addResponse(id, endpoint, result);
             } else {
                 result = IOUtils.toString(
                         conn.getErrorStream() == null ? conn.getInputStream() : conn.getErrorStream(),
@@ -45,14 +47,14 @@ public class CallHttpEndpointWorker implements Callable<String> {
                 );
 
                 logger.debugf("Add new error for %s: %s", endpoint, result);
-                resultAggregator.addError(endpoint, result);
+                resultAggregator.addError(id, endpoint, result);
             }
 
             logger.infof("Result from %s: %s", endpoint, result);
         } catch (IOException e) {
             logger.errorf(e, "Exception for endpoint '%s'", endpoint);
             result = e.getMessage();
-            resultAggregator.addError(endpoint, e.getMessage());
+            resultAggregator.addError(id, endpoint, e.getMessage());
         }
 
         return result;
